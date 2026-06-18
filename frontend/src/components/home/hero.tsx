@@ -2,17 +2,21 @@ import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/lib/config/site";
+import TextType from "@/components/text-type";
 
 export function Hero() {
   return (
     <section className="border-b bg-gradient-to-b from-muted/40 to-background">
       <Container className="flex flex-col items-center gap-6 py-20 text-center sm:py-28">
-        <span className="rounded-full border px-3 py-1 text-xs text-muted-foreground">
-          独立开发 · 开源优先
-        </span>
-        <h1 className="font-heading max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">
-          一个人的独立软件公司
-        </h1>
+        <TextType
+          as="h1"
+          text="欢迎来到我的独立开发站"
+          className="font-heading max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl"
+          typingSpeed={90}
+          pauseDuration={1800}
+          deletingSpeed={40}
+          cursorClassName="text-primary font-normal"
+        />
         <p className="max-w-xl text-base text-muted-foreground sm:text-lg">
           {siteConfig.description}
         </p>
