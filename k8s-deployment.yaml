@@ -1,0 +1,104 @@
+# =============================================================
+#  chengj.online 个人门户部署配置（单组件 · 一人运维 · k3s）
+#
+#  组件            镜像                              端口
+#  opc-frontend    7as0nch/opc-frontend:<ver>        3000 (Next.js standalone)
+#
+#  __IMAGE_VERSION__ 占位符由 publish.ps1 / publish.sh 读取
+#  frontend/package.json 的 version 字段，在 apply 之前替换。
+#
+#  纯前端，无后端、无 Secret：
+#  NEXT_PUBLIC_* 在 docker build 时内联进包（见 frontend/Dockerfile 的 --build-arg）。
+#  业务后端（Go/Kratos）后续再追加 Deployment + /api 的 Ingress 路径即可。
+# =============================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: opcweb
+
+---
+# ─── opc-frontend（Next.js standalone） ─────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opc-frontend
+  namespace: opcweb
+  labels:
+    app: opc-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opc-frontend
+  template:
+    metadata:
+      labels:
+        app: opc-frontend
+    spec:
+      containers:
+        - name: opc-frontend
+          image: 7as0nch/opc-frontend:__IMAGE_VERSION__
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opc-frontend-svc
+  namespace: opcweb
+spec:
+  selector:
+    app: opc-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+
+---
+# Ingress：k3s 自带 Traefik 为默认 IngressController。
+# 仅 HTTP（web entrypoint），TLS 由上游（如 Cloudflare）终结；
+# 若需集群内 TLS，加 websecure entrypoint + spec.tls。
+# 如需 www 跳转，可再加一条 host: www.chengj.online 规则。
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: opc-frontend-ingress
+  namespace: opcweb
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  rules:
+    - host: chengj.online
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: opc-frontend-svc
+                port:
+                  number: 80

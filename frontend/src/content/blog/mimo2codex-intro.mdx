@@ -1,0 +1,29 @@
+export const metadata = {
+  title: "用 mimo2codex 让 Codex 接上国产大模型",
+  date: "2026-05-20",
+  summary:
+    "OpenAI Codex 很好用，但想换成国产模型怎么办？mimo2codex 在本地做协议转换，一处配置随心切换。",
+  tags: ["mimo2codex", "教程"],
+};
+
+# 用 mimo2codex 让 Codex 接上国产大模型
+
+[mimo2codex](/products/mimo2codex) 是一个本地代理：它把国产大模型的接口「翻译」成
+OpenAI 兼容协议，于是 OpenAI Codex CLI / 桌面版就能无感地用上 MiMo、DeepSeek、Kimi、
+MiniMax、SenseChat 等模型。
+
+## 它解决什么问题
+
+- Codex 体验好，但默认只认 OpenAI 协议。
+- 国产模型各家协议不一，逐个适配很麻烦。
+- 把密钥直接交给第三方代理，不放心。
+
+mimo2codex 在**本地**完成协议转换，数据不出本机，安全可靠。
+
+## 大致用法
+
+1. 本地启动 mimo2codex 代理。
+2. 在配置里选择目标模型（一处配置，随心切换）。
+3. 照常使用 Codex —— 背后已经换成了你选的国产模型。
+
+更多细节见 [文档站](https://mimodoc.chengj.online)。
