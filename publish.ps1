@@ -27,7 +27,7 @@
 [CmdletBinding()]
 param(
   [string]$DockerUser        = '7as0nch',
-  [string]$Version           = 'v0.0.1',
+  [string]$Version           = 'v0.0.2',
   [string]$Platform          = 'linux/amd64',
   [string]$RemoteHost        = '7as0nch@8.229.29.77',
   [int]   $RemotePort        = 22,
