@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MenuIcon } from "lucide-react";
@@ -20,13 +21,33 @@ export function SiteHeader() {
   const pathname = usePathname();
   const mobileNavOpen = useUIStore((s) => s.mobileNavOpen);
   const setMobileNavOpen = useUIStore((s) => s.setMobileNavOpen);
+  const [scrolled, setScrolled] = useState(false);
 
-  // 首页精确匹配，其余按前缀匹配
+  const isHome = pathname === "/";
+  // 仅首页有深色英雄区：滚过大半英雄区前，header 透明叠加 + 亮色文字
+  const transparent = isHome && !scrolled;
+
+  useEffect(() => {
+    // 非首页无需透明叠加（transparent 已含 isHome 判断），不挂监听
+    if (!isHome) return;
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.7);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isHome]);
+
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+    <header
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
+        transparent
+          ? "bg-transparent text-neutral-50"
+          : "border-b bg-background/80 text-foreground backdrop-blur"
+      )}
+    >
       <Container className="flex h-14 items-center justify-between gap-4">
         <Link href="/" className="font-heading text-base font-semibold">
           {siteConfig.name}
@@ -40,7 +61,9 @@ export function SiteHeader() {
               href={item.href}
               className={cn(
                 buttonVariants({ variant: "ghost", size: "sm" }),
-                isActive(item.href) && "bg-muted text-foreground"
+                transparent && "text-neutral-200 hover:bg-white/10 hover:text-white",
+                isActive(item.href) &&
+                  (transparent ? "bg-white/15 text-white" : "bg-muted text-foreground")
               )}
             >
               {item.label}
@@ -53,7 +76,8 @@ export function SiteHeader() {
             href="/beta"
             className={cn(
               buttonVariants({ variant: "default", size: "sm" }),
-              "hidden sm:inline-flex"
+              "hidden sm:inline-flex",
+              transparent && "bg-white text-neutral-900 hover:bg-white/90"
             )}
           >
             申请内测

@@ -8,7 +8,7 @@ export function FeaturedProducts() {
   const products = getFeaturedProducts();
 
   return (
-    <section className="py-16">
+    <section id="products" className="scroll-mt-20 py-16">
       <Container className="flex flex-col gap-8">
         <div className="flex items-end justify-between gap-4">
           <div>

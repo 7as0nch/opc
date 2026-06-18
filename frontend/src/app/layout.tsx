@@ -5,6 +5,7 @@ import { Providers } from "@/app/providers";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
+import TargetCursor from "@/components/target-cursor";
 import { siteConfig } from "@/lib/config/site";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -42,14 +43,15 @@ export default function RootLayout({
     <html
       lang="zh-CN"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased motion-safe:scroll-smooth`}
     >
       <body className="flex min-h-full flex-col">
         <Providers>
           <SiteHeader />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 pt-14">{children}</main>
           <SiteFooter />
           <Toaster />
+          <TargetCursor targetSelector="a, button, .cursor-target" />
         </Providers>
       </body>
     </html>

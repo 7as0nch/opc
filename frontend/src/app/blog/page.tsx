@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layout/container";
 import { PostCard } from "@/components/blog/post-card";
+import AnimatedContent from "@/components/fx/animated-content";
 import { getAllPostsMeta } from "@/lib/content/blog";
 
 export const metadata: Metadata = {
@@ -22,8 +23,14 @@ export default async function BlogPage() {
 
       {posts.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2">
-          {posts.map((post) => (
-            <PostCard key={post.slug} post={post} />
+          {posts.map((post, index) => (
+            <AnimatedContent
+              key={post.slug}
+              delay={index * 0.08}
+              className="h-full"
+            >
+              <PostCard post={post} />
+            </AnimatedContent>
           ))}
         </div>
       ) : (
