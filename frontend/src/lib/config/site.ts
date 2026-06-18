@@ -15,7 +15,7 @@ export const siteConfig = {
   name: "chengj.online",
   title: "chengj.online · 一个人的独立软件公司",
   description:
-    "独立开发者 chengj 的个人作品站：开源工具与 AI 产品。mimo2codex 让 Codex 用上国内大模型，AICook 拍照识别食材推荐菜谱。",
+    "我叫 chengj，这是我的个人作品站，主要有：开源工具与 AI 产品。合理使用AI，让我们共同迈入VibeCoding的时代吧！",
   // 站点对外地址，优先取环境变量，回退到默认域名
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://chengj.online",
   // 主导航
@@ -29,7 +29,7 @@ export const siteConfig = {
   social: [
     { label: "GitHub", href: "https://github.com/", external: true },
     { label: "官网", href: "https://chengj.online", external: true },
-    { label: "邮箱", href: "mailto:hello@chengj.online" },
+    { label: "邮箱", href: "mailto:7as0nch@gmail.com" },
   ] satisfies SocialLink[],
 };
 

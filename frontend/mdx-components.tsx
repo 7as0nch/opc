@@ -41,6 +41,22 @@ const components: MDXComponents = {
       {...props}
     />
   ),
+  // GFM 表格（需 remark-gfm）：横向可滚动 + 边框样式
+  table: (props) => (
+    <div className="my-6 overflow-x-auto">
+      <table className="w-full border-collapse text-sm" {...props} />
+    </div>
+  ),
+  thead: (props) => <thead className="bg-muted" {...props} />,
+  th: (props) => (
+    <th
+      className="border border-border px-3 py-2 text-left font-semibold"
+      {...props}
+    />
+  ),
+  td: (props) => (
+    <td className="border border-border px-3 py-2 align-top" {...props} />
+  ),
 };
 
 export function useMDXComponents(): MDXComponents {

@@ -36,7 +36,7 @@ export default function AboutPage() {
               href="/products/aicook"
               className="font-medium text-primary underline underline-offset-4"
             >
-              AICook
+              萝卜爱做饭
             </Link>
             。
           </p>
@@ -71,7 +71,7 @@ export default function AboutPage() {
             ))}
           </ul>
           <p className="text-sm text-muted-foreground">
-            想体验内测中的 AICook？前往{" "}
+            想体验内测中的 萝卜爱做饭？前往{" "}
             <Link
               href="/beta"
               className="font-medium text-primary underline underline-offset-4"

@@ -12,6 +12,12 @@ export interface ProductLink {
   external?: boolean;
 }
 
+// 产品相关文档（如法律条款），用于详情页标注 + 小程序按地址索引
+export interface ProductDoc {
+  title: string;
+  href: string;
+}
+
 export interface Product {
   // URL 友好的唯一标识，用作 /products/[slug]
   slug: string;
@@ -29,4 +35,6 @@ export interface Product {
   // 卖点列表
   highlights: string[];
   links: ProductLink[];
+  // 相关文档（法律条款等），可选
+  docs?: ProductDoc[];
 }

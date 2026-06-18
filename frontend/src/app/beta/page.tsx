@@ -4,7 +4,7 @@ import { BetaApplyForm } from "@/components/forms/beta-apply-form";
 
 export const metadata: Metadata = {
   title: "内测申请",
-  description: "申请加入 AICook 内测，第一时间体验拍照识别食材推荐菜谱。",
+  description: "申请加入 萝卜爱做饭 内测，第一时间体验拍照识别食材推荐菜谱。",
 };
 
 export default function BetaPage() {
@@ -16,7 +16,7 @@ export default function BetaPage() {
             内测申请
           </h1>
           <p className="text-muted-foreground">
-            AICook 正在内测中。填写下面的信息，我们会尽快邀请你体验。
+            萝卜爱做饭 正在内测中。填写下面的信息，我们会尽快邀请你体验。
           </p>
         </header>
         <BetaApplyForm product="aicook" />

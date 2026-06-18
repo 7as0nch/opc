@@ -1,4 +1,5 @@
 import type { Product, ProductCategory } from "@/types/product";
+import { aicookDocs } from "@/lib/content/aicook-docs";
 
 // 产品种子数据（来源 project/open/*；后端就绪后可替换为接口数据）
 export const products: Product[] = [
@@ -26,13 +27,13 @@ export const products: Product[] = [
   },
   {
     slug: "aicook",
-    name: "AICook 智能菜谱",
+    name: "萝卜爱做饭",
     tagline: "拍照识别食材 · AI 推荐菜谱",
     description:
       "拍下手边的食材，AI 自动识别种类与份量，并据此为你推荐可做的菜谱。微信小程序，开源，当前处于内测阶段。",
     category: "open",
     status: "beta",
-    image: "/products/aicook.jpg",
+    image: "/products/aicook.png",
     tags: ["AI", "视觉识别", "菜谱", "小程序"],
     highlights: [
       "拍照即识别食材与份量",
@@ -45,6 +46,11 @@ export const products: Product[] = [
       // TODO: 替换为真实仓库地址
       { label: "GitHub", href: "https://github.com/", external: true },
     ],
+    // 法律条款（小程序按 /aicook/docs/<slug> 索引）
+    docs: aicookDocs.map((doc) => ({
+      title: doc.title,
+      href: `/aicook/docs/${doc.slug}`,
+    })),
   },
   {
     slug: "commercial-wip",

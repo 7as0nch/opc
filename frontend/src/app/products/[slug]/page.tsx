@@ -117,6 +117,26 @@ export default async function ProductDetailPage({
               ))}
             </div>
           )}
+
+          {product.docs && product.docs.length > 0 && (
+            <div className="flex flex-col gap-2 border-t pt-5">
+              <h2 className="text-sm font-semibold text-muted-foreground">
+                相关条款与文档
+              </h2>
+              <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                {product.docs.map((doc) => (
+                  <li key={doc.href}>
+                    <Link
+                      href={doc.href}
+                      className="text-primary underline underline-offset-4"
+                    >
+                      {doc.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </Container>

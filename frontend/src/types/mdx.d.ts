@@ -13,3 +13,11 @@ declare module "*.mdx" {
     tags?: string[];
   };
 }
+
+// 纯 Markdown 文档（无 frontmatter 导出），仅默认导出渲染组件
+declare module "*.md" {
+  import type { ComponentType } from "react";
+
+  const MarkdownComponent: ComponentType;
+  export default MarkdownComponent;
+}
