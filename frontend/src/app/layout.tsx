@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import TargetCursor from "@/components/target-cursor";
+import { Tracker } from "@/components/tracker";
 import { siteConfig } from "@/lib/config/site";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -52,6 +53,7 @@ export default function RootLayout({
           <SiteFooter />
           <Toaster />
           <TargetCursor targetSelector="a, button, .cursor-target" />
+          <Tracker />
         </Providers>
       </body>
     </html>
