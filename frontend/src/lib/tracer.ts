@@ -70,6 +70,11 @@ class AnalyticsTracker {
   public deviceId: string;
   public pageStartTime: number;
   private apiInstalled = false;
+  // 熔断：连续失败达阈值后暂停上报一段时间，避免持续往坏接口发请求 + 刷控制台
+  private failureCount = 0;
+  private circuitOpenUntil = 0;
+  private readonly failureThreshold = 3;
+  private readonly cooldownMs = 5 * 60_000;
 
   constructor(options: TrackerOptions = {}) {
     this.baseUrl = options.baseUrl || "/api/log/batch";
@@ -125,7 +130,7 @@ class AnalyticsTracker {
   }
 
   private _listenUnload() {
-    const flushHandler = () => this.flush();
+    const flushHandler = () => this.flush(true);
     window.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") flushHandler();
     });
@@ -136,7 +141,7 @@ class AnalyticsTracker {
 
   // 收集一条事件（入队，不立即发送）
   public async report(type: string, payload: unknown = {}): Promise<this> {
-    if (!isBrowser) return this;
+    if (!isBrowser || this._circuitOpen()) return this;
 
     const logItem: LogItem = { ...this._getBaseInfo(), type, data: payload };
 
@@ -150,18 +155,44 @@ class AnalyticsTracker {
     return this;
   }
 
-  // 强制发送队列
-  public flush(): void {
+  // 强制发送队列。useBeacon=true 用于页面关闭时（sendBeacon 一锤子买卖）。
+  public flush(useBeacon = false): void {
     if (!isBrowser || this.queue.length === 0) return;
+    // 熔断打开时丢弃队列，避免堆积与持续失败
+    if (this._circuitOpen()) {
+      this.queue = [];
+      return;
+    }
 
     const dataToSend = [...this.queue];
     this.queue = [];
-    this._sendData(dataToSend);
+    this._sendData(dataToSend, useBeacon);
 
     for (const handler of this.afterHandlers) handler(dataToSend);
   }
 
-  private _sendData(dataList: LogItem[]): void {
+  private _circuitOpen(): boolean {
+    return Date.now() < this.circuitOpenUntil;
+  }
+
+  // 记录一次发送结果，驱动熔断
+  private _onSendResult(ok: boolean): void {
+    if (ok) {
+      this.failureCount = 0;
+      return;
+    }
+    this.failureCount += 1;
+    if (this.failureCount >= this.failureThreshold) {
+      this.failureCount = 0;
+      this.circuitOpenUntil = Date.now() + this.cooldownMs;
+      // 只提示一次，避免刷屏
+      console.warn(
+        `[Tracker] 上报连续失败，暂停 ${Math.round(this.cooldownMs / 60000)} 分钟`
+      );
+    }
+  }
+
+  private _sendData(dataList: LogItem[], useBeacon: boolean): void {
     // 后端要求 data 字段为字符串，手动序列化
     const payload = dataList.map((item) => ({
       ...item,
@@ -172,18 +203,23 @@ class AnalyticsTracker {
     }));
     const body = JSON.stringify({ logs: payload });
 
-    // sendBeacon 保证页面关闭时也能发送；text/plain 避免触发 CORS 预检
-    if (navigator.sendBeacon) {
+    // 页面关闭：sendBeacon（无法获知结果，best-effort）
+    if (useBeacon && navigator.sendBeacon) {
       const blob = new Blob([body], { type: "text/plain; charset=UTF-8" });
       navigator.sendBeacon(this.baseUrl, blob);
-    } else {
-      fetch(this.baseUrl, {
-        method: "POST",
-        body,
-        headers: { "Content-Type": "text/plain" },
-        keepalive: true,
-      }).catch((err) => console.error("[Tracker] Batch send failed", err));
+      return;
     }
+
+    // 常规：fetch keepalive。HTTP 错误码（如后端 5xx）以 res.ok 判定来驱动熔断；
+    // fetch 解析出错误码不会向控制台抛红，避免刷屏。
+    fetch(this.baseUrl, {
+      method: "POST",
+      body,
+      headers: { "Content-Type": "text/plain" },
+      keepalive: true,
+    })
+      .then((res) => this._onSendResult(res.ok))
+      .catch(() => this._onSendResult(false));
   }
 
   // --- 链式配置 ---

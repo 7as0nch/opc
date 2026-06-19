@@ -27,10 +27,19 @@ apiClient.interceptors.response.use(
   (error: unknown) => {
     let message = "请求失败，请稍后重试";
     if (axios.isAxiosError(error)) {
-      const data = error.response?.data as
-        | { msg?: string; message?: string }
-        | undefined;
-      message = data?.msg ?? data?.message ?? error.message ?? message;
+      const status = error.response?.status;
+      if (status && status >= 500) {
+        // 后端 5xx（含上游 526）统一提示，不暴露细节
+        message = "服务暂时不可用，请稍后再试";
+      } else {
+        const data = error.response?.data as
+          | { msg?: string; message?: string }
+          | undefined;
+        message =
+          (typeof data === "object" ? (data?.msg ?? data?.message) : undefined) ??
+          error.message ??
+          message;
+      }
     }
     return Promise.reject(new Error(message));
   }
