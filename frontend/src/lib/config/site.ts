@@ -25,9 +25,9 @@ export const siteConfig = {
     { label: "博客", href: "/blog" },
     { label: "关于", href: "/about" },
   ] satisfies NavItem[],
-  // 社交 / 联系方式 —— TODO: 替换为真实地址
+  // 社交 / 联系方式
   social: [
-    { label: "GitHub", href: "https://github.com/", external: true },
+    { label: "GitHub", href: "https://github.com/7as0nch", external: true },
     { label: "官网", href: "https://chengj.online", external: true },
     { label: "邮箱", href: "mailto:7as0nch@gmail.com" },
   ] satisfies SocialLink[],

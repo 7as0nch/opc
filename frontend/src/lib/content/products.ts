@@ -21,8 +21,7 @@ export const products: Product[] = [
     ],
     links: [
       { label: "文档站", href: "https://mimodoc.chengj.online", external: true },
-      // TODO: 替换为真实仓库地址
-      { label: "GitHub", href: "https://github.com/", external: true },
+      { label: "GitHub", href: "https://github.com/7as0nch/mimo2codex", external: true },
     ],
   },
   {
@@ -43,8 +42,7 @@ export const products: Product[] = [
     ],
     links: [
       { label: "申请内测", href: "/beta" },
-      // TODO: 替换为真实仓库地址
-      { label: "GitHub", href: "https://github.com/", external: true },
+      { label: "GitHub", href: "https://github.com/7as0nch/aicook", external: true },
     ],
     // 法律条款（小程序按 /aicook/docs/<slug> 索引）
     docs: aicookDocs.map((doc) => ({
@@ -54,10 +52,10 @@ export const products: Product[] = [
   },
   {
     slug: "commercial-wip",
-    name: "商业新品（筹备中）",
+    name: "新品（筹备中）",
     tagline: "即将推出",
     description:
-      "正在打磨中的商业产品，将围绕个人开发者与小团队的真实需求展开。敬请期待。",
+      "正在打磨中的产品，将围绕个人开发者与小团队的真实需求展开。敬请期待。",
     category: "commercial",
     status: "coming-soon",
     tags: ["商业", "筹备中"],
