@@ -5,7 +5,7 @@ import { getProductsByCategory } from "@/lib/content/products";
 
 export const metadata: Metadata = {
   title: "产品",
-  description: "chengj.online 的开源工具与商业产品一览。",
+  description: "chengj.online 的开源工具与产品一览。",
 };
 
 export default function ProductsPage() {
@@ -16,7 +16,7 @@ export default function ProductsPage() {
     <Container className="flex flex-col gap-12 py-12">
       <header className="flex flex-col gap-2">
         <h1 className="font-heading text-3xl font-bold tracking-tight">产品</h1>
-        <p className="text-muted-foreground">开源优先的工具与正在筹备的商业产品。</p>
+        <p className="text-muted-foreground">开源优先的工具与正在筹备的产品。</p>
       </header>
 
       <section className="flex flex-col gap-6">
@@ -25,7 +25,7 @@ export default function ProductsPage() {
       </section>
 
       <section className="flex flex-col gap-6">
-        <h2 className="font-heading text-xl font-semibold">商业产品</h2>
+        <h2 className="font-heading text-xl font-semibold">其他产品</h2>
         {commercial.length > 0 ? (
           <ProductGrid products={commercial} />
         ) : (

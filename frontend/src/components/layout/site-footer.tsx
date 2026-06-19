@@ -9,7 +9,7 @@ export function SiteFooter() {
     <footer className="border-t">
       <Container className="flex flex-col items-center justify-between gap-4 py-8 sm:flex-row">
         <p className="text-sm text-muted-foreground">
-          © {year} {siteConfig.name} · 一个人的独立软件公司
+          © {year} {siteConfig.name} · 独立开发者
         </p>
         <nav className="flex items-center gap-4">
           {siteConfig.social.map((item) => (

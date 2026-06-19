@@ -13,7 +13,7 @@ export interface SocialLink {
 
 export const siteConfig = {
   name: "chengj.online",
-  title: "chengj.online · 一个人的独立软件公司",
+  title: "chengj.online · 独立开发者",
   description:
     "我叫 chengj，这是我的个人作品站，主要有：开源工具与 AI 产品。合理使用AI，让我们共同迈入VibeCoding的时代吧！",
   // 站点对外地址，优先取环境变量，回退到默认域名

@@ -1,4 +1,4 @@
-// 产品分类：开源项目 / 商业产品
+// 产品分类：开源项目 / 产品
 export type ProductCategory = "open" | "commercial";
 
 // 产品状态：已上线 / 内测中 / 即将推出
