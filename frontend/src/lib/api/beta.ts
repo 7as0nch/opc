@@ -1,32 +1,51 @@
-import { apiClient, isApiConfigured } from "@/lib/api/client";
+import { apiClient, apiMode } from "@/lib/api/client";
 
-// 内测申请表单数据
-export interface BetaApplyPayload {
-  name: string;
-  email: string;
-  // 申请的产品标识，如 aicook
-  product: string;
-  device?: string;
-  message?: string;
+// 内测申请数据（对齐后端契约）
+export interface BetaApplicationPayload {
+  // 申请的产品方向
+  productInterest: "litechat" | "aicook" | "tech-sandbox";
+  // 联系方式类型
+  contactType: "email" | "qq";
+  contactValue: string;
+  // 使用场景
+  useCase: string;
+  note?: string;
+  // 来源页（自动填充）
+  sourcePage?: string;
 }
 
-export interface BetaApplyResult {
-  ok: boolean;
-  // 是否为本地 mock（后端未接入时为 true）
-  mocked: boolean;
+export interface BetaApplicationResponse {
+  id: number;
+  status: string;
+  mailStatus: string;
+}
+
+// 后端统一响应包装
+interface BackendResult<T> {
+  code: number;
+  data: T;
+  msg: string;
 }
 
 // 提交内测申请。
-// TODO: 后端就绪后接 Go/Kratos 的 POST /beta/apply；
-// 当前未配置 NEXT_PUBLIC_API_BASE_URL 时返回 mock 成功，便于前端联调。
-export async function submitBetaApply(
-  payload: BetaApplyPayload
-): Promise<BetaApplyResult> {
-  if (!isApiConfigured) {
-    // 模拟网络往返，便于演示加载/成功三态
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    return { ok: true, mocked: true };
+// backend 模式：经同源代理 POST /beta/applications（→ 真实后端）；
+// mock 模式：返回模拟数据，便于本地无后端联调。
+export async function submitBetaApplication(
+  payload: BetaApplicationPayload
+): Promise<BetaApplicationResponse> {
+  if (apiMode === "mock") {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    return { id: Date.now(), status: "submitted", mailStatus: "skipped" };
   }
-  await apiClient.post("/beta/apply", payload);
-  return { ok: true, mocked: false };
+
+  const res = await apiClient.post<BackendResult<BetaApplicationResponse>>(
+    "/beta/applications",
+    payload
+  );
+  const body = res.data;
+  // HTTP 200 但业务码非 200 时也按失败处理
+  if (body?.code != null && body.code !== 200) {
+    throw new Error(body.msg || "提交失败");
+  }
+  return body?.data ?? (body as unknown as BetaApplicationResponse);
 }

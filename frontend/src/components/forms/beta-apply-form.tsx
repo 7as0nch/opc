@@ -10,68 +10,115 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useBetaApply } from "@/hooks/use-beta-apply";
+import type { BetaApplicationPayload } from "@/lib/api/beta";
 
-// 内测申请表单校验规则
-const betaApplySchema = z.object({
-  name: z.string().min(2, "请填写至少 2 个字符的称呼"),
-  email: z.string().email("请输入有效的邮箱地址"),
-  device: z.string().optional(),
-  message: z.string().max(500, "不超过 500 字").optional(),
-});
+// 校验规则：联系方式按类型校验邮箱 / QQ
+const schema = z
+  .object({
+    contactType: z.enum(["email", "qq"]),
+    contactValue: z.string().min(1, "请填写联系方式"),
+    useCase: z
+      .string()
+      .min(5, "简单描述下使用场景（至少 5 字）")
+      .max(500, "不超过 500 字"),
+    note: z.string().max(500, "不超过 500 字").optional(),
+  })
+  .refine(
+    (d) =>
+      d.contactType !== "email" ||
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.contactValue),
+    { message: "请输入有效的邮箱地址", path: ["contactValue"] }
+  )
+  .refine(
+    (d) => d.contactType !== "qq" || /^[1-9]\d{4,11}$/.test(d.contactValue),
+    { message: "请输入有效的 QQ 号", path: ["contactValue"] }
+  );
 
-type BetaApplyFormValues = z.infer<typeof betaApplySchema>;
+type FormValues = z.infer<typeof schema>;
 
-export function BetaApplyForm({ product = "aicook" }: { product?: string }) {
+export function BetaApplyForm({
+  productInterest = "aicook",
+}: {
+  productInterest?: BetaApplicationPayload["productInterest"];
+}) {
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
-  } = useForm<BetaApplyFormValues>({
-    resolver: zodResolver(betaApplySchema),
-    defaultValues: { name: "", email: "", device: "", message: "" },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      contactType: "email",
+      contactValue: "",
+      useCase: "",
+      note: "",
+    },
   });
 
+  const contactType = watch("contactType");
   const { mutateAsync, isPending } = useBetaApply();
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const result = await mutateAsync({ ...values, product });
+      const result = await mutateAsync({
+        productInterest,
+        contactType: values.contactType,
+        contactValue: values.contactValue.trim(),
+        useCase: values.useCase.trim(),
+        note: values.note?.trim() || undefined,
+        sourcePage:
+          typeof window !== "undefined" ? window.location.pathname : undefined,
+      });
       toast.success(
-        result.mocked
-          ? "申请已记录（演示模式，后端待接入）"
+        result.mailStatus === "sent"
+          ? "申请提交成功，确认邮件已发出，请注意查收"
           : "申请提交成功，我们会尽快与你联系"
       );
       reset();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "提交失败，请稍后重试");
+      toast.error(
+        error instanceof Error ? error.message : "提交失败，请稍后重试"
+      );
     }
   });
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
-      <Field label="称呼" htmlFor="name" error={errors.name?.message}>
-        <Input id="name" placeholder="怎么称呼你" {...register("name")} />
+      <Field label="联系方式" htmlFor="contactValue" error={errors.contactValue?.message}>
+        <div className="flex gap-2">
+          <select
+            aria-label="联系方式类型"
+            className="h-8 shrink-0 rounded-lg border border-input bg-transparent px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+            {...register("contactType")}
+          >
+            <option value="email">邮箱</option>
+            <option value="qq">QQ</option>
+          </select>
+          <Input
+            id="contactValue"
+            type={contactType === "email" ? "email" : "text"}
+            inputMode={contactType === "qq" ? "numeric" : "email"}
+            placeholder={contactType === "email" ? "you@example.com" : "你的 QQ 号"}
+            {...register("contactValue")}
+          />
+        </div>
       </Field>
-      <Field label="邮箱" htmlFor="email" error={errors.email?.message}>
-        <Input
-          id="email"
-          type="email"
-          placeholder="you@example.com"
-          {...register("email")}
-        />
-      </Field>
-      <Field label="设备 / 系统（选填）" htmlFor="device" error={errors.device?.message}>
-        <Input id="device" placeholder="如 iPhone 15 / 微信" {...register("device")} />
-      </Field>
-      <Field label="想说的话（选填）" htmlFor="message" error={errors.message?.message}>
+
+      <Field label="使用场景" htmlFor="useCase" error={errors.useCase?.message}>
         <Textarea
-          id="message"
-          rows={4}
-          placeholder="期待的功能、使用场景等"
-          {...register("message")}
+          id="useCase"
+          rows={3}
+          placeholder="你打算用它做什么？比如：管理家庭菜谱、按冰箱里的食材推荐做菜……"
+          {...register("useCase")}
         />
       </Field>
+
+      <Field label="备注（选填）" htmlFor="note" error={errors.note?.message}>
+        <Textarea id="note" rows={2} placeholder="其它想说的" {...register("note")} />
+      </Field>
+
       <Button type="submit" size="lg" disabled={isPending}>
         {isPending ? "提交中…" : "提交申请"}
       </Button>

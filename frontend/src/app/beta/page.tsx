@@ -19,7 +19,7 @@ export default function BetaPage() {
             萝卜爱做饭 正在内测中。填写下面的信息，我们会尽快邀请你体验。
           </p>
         </header>
-        <BetaApplyForm product="aicook" />
+        <BetaApplyForm productInterest="aicook" />
         <p className="text-xs text-muted-foreground">
           提交即表示你同意我们通过邮箱与你联系。我们不会泄露你的信息。
         </p>
