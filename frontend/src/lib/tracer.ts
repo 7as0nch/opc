@@ -262,14 +262,12 @@ class AnalyticsTracker {
   }
 }
 
-// 单例：appId / 上报地址走环境变量，便于在不改代码的情况下切换后端。
-// 注意：默认地址当前不可用（域名走 Cloudflare、自定义端口 6039 未代理；且站点为 https，
-// http 地址会被混合内容拦截）。生产请把 NEXT_PUBLIC_TRACKER_URL 指向可用的 https 接口。
+// 单例：默认上报到同源代理 /api/tracker/batch（见 app/api/tracker/batch/route.ts），
+// 由它在服务端转发到真实埋点后端——规避跨域 CORS 预检、混合内容、以及后端只收 application/json 的限制。
+// 真实后端地址在服务端用 TRACKER_UPSTREAM_URL 配置；如需直连可用 NEXT_PUBLIC_TRACKER_URL 覆盖。
 const tracker = new AnalyticsTracker({
   appId: process.env.NEXT_PUBLIC_TRACKER_APP_ID || "opc-web",
-  baseUrl:
-    process.env.NEXT_PUBLIC_TRACKER_URL ||
-    "http://aihelper.chat:6039/tracker/batch",
+  baseUrl: process.env.NEXT_PUBLIC_TRACKER_URL || "/api/tracker/batch",
   batchSize: 5,
   wait: 3000,
 });

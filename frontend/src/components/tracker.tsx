@@ -49,5 +49,32 @@ export function Tracker() {
     return () => document.removeEventListener("click", onClick, true);
   }, []);
 
+  // 错误埋点：全局 JS 错误 + 未捕获的 Promise rejection
+  useEffect(() => {
+    const onError = (e: ErrorEvent) => {
+      void tracker.report("error", {
+        message: e.message,
+        source: e.filename,
+        lineno: e.lineno,
+        colno: e.colno,
+        stack: e.error instanceof Error ? e.error.stack?.slice(0, 500) : undefined,
+      });
+    };
+    const onRejection = (e: PromiseRejectionEvent) => {
+      const reason = e.reason;
+      void tracker.report("error", {
+        kind: "unhandledrejection",
+        message: reason instanceof Error ? reason.message : String(reason),
+        stack: reason instanceof Error ? reason.stack?.slice(0, 500) : undefined,
+      });
+    };
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onRejection);
+    return () => {
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onRejection);
+    };
+  }, []);
+
   return null;
 }
